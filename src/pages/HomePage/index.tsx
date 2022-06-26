@@ -31,12 +31,14 @@ export const HomePage: React.FC = () => {
       inputValues.min != '00' ||
       inputValues.sec != '00'
     ) {
-      setTimer(
+      const timerValue =
         Number(inputValues.hour) * 3600 +
-          Number(inputValues.min) * 60 +
-          Number(inputValues.sec) -
-          1
-      );
+        Number(inputValues.min) * 60 +
+        Number(inputValues.sec) -
+        1;
+      if (timerValue > 0) setTimer(timerValue);
+      else alert('Invalid timer');
+
       setActive(true);
     }
   };
@@ -56,7 +58,7 @@ export const HomePage: React.FC = () => {
   let timerTimeout;
 
   useEffect(() => {
-    if (timer && active) {
+    if (timer && timer > 0 && active) {
       timeout = setTimeout(() => {
         timerTimeout = setTimer(timer - 1);
       }, 1000);
@@ -76,100 +78,101 @@ export const HomePage: React.FC = () => {
             event.preventDefault();
             startTimer();
           }}
-          className="flex gap-5 items-center justify-center"
+          className="flex flex-col gap-16 items-center justify-center"
         >
-          {timer ? (
-            <TimeComponent time={hour} />
+          <fieldset className="flex gap-5 items-center justify-center">
+            {timer ? (
+              <TimeComponent time={hour} />
+            ) : (
+              <InputComponent
+                onChange={(event) =>
+                  setInputValues({
+                    ...inputValues,
+                    hour: event.target.value.trim(),
+                  })
+                }
+                value={inputValues.hour}
+                onBlur={() =>
+                  setInputValues({
+                    ...inputValues,
+                    hour: inputValues.hour.padStart(2, '0'),
+                  })
+                }
+              />
+            )}
+
+            <p className="flex text-9xl text-green-500 font-bold items-center justify-center -translate-y-3">
+              :
+            </p>
+
+            {timer ? (
+              <TimeComponent time={min} />
+            ) : (
+              <InputComponent
+                onChange={(event) =>
+                  setInputValues({
+                    ...inputValues,
+                    min: event.target.value.trim(),
+                  })
+                }
+                value={inputValues.min}
+                onBlur={() =>
+                  setInputValues({
+                    ...inputValues,
+                    min: inputValues.min.padStart(2, '0'),
+                  })
+                }
+              />
+            )}
+
+            <p className="text-9xl text-green-500 font-bold flex items-center justify-center -translate-y-3">
+              :
+            </p>
+
+            {timer ? (
+              <TimeComponent time={sec} />
+            ) : (
+              <InputComponent
+                onChange={(event) =>
+                  setInputValues({
+                    ...inputValues,
+                    sec: event.target.value.trim(),
+                  })
+                }
+                value={inputValues.sec}
+                onBlur={() =>
+                  setInputValues({
+                    ...inputValues,
+                    sec: inputValues.sec.padStart(2, '0'),
+                  })
+                }
+              />
+            )}
+          </fieldset>
+          {!timer ? (
+            <ButtonComponent
+              type="submit"
+              className="bg-green-500 hover:bg-green-700"
+            >
+              <Play size={24} weight="bold" /> INICIAR CONTAGEM
+            </ButtonComponent>
           ) : (
-            <InputComponent
-              onChange={(event) =>
-                setInputValues({
-                  ...inputValues,
-                  hour: event.target.value.trim(),
-                })
-              }
-              value={inputValues.hour}
-              onBlur={() =>
-                setInputValues({
-                  ...inputValues,
-                  hour: inputValues.hour.padStart(2, '0'),
-                })
-              }
-            />
-          )}
-
-          <p className="flex text-9xl text-green-500 font-bold items-center justify-center -translate-y-3">
-            :
-          </p>
-
-          {timer ? (
-            <TimeComponent time={min} />
-          ) : (
-            <InputComponent
-              onChange={(event) =>
-                setInputValues({
-                  ...inputValues,
-                  min: event.target.value.trim(),
-                })
-              }
-              value={inputValues.min}
-              onBlur={() =>
-                setInputValues({
-                  ...inputValues,
-                  min: inputValues.min.padStart(2, '0'),
-                })
-              }
-            />
-          )}
-
-          <p className="text-9xl text-green-500 font-bold flex items-center justify-center -translate-y-3">
-            :
-          </p>
-
-          {timer ? (
-            <TimeComponent time={sec} />
-          ) : (
-            <InputComponent
-              onChange={(event) =>
-                setInputValues({
-                  ...inputValues,
-                  sec: event.target.value.trim(),
-                })
-              }
-              value={inputValues.sec}
-              onBlur={() =>
-                setInputValues({
-                  ...inputValues,
-                  sec: inputValues.sec.padStart(2, '0'),
-                })
-              }
-            />
+            <div className="flex gap-5">
+              <ButtonComponent
+                onClick={handleTimer}
+                className="bg-orange-500 hover:bg-orange-700"
+              >
+                <Pause size={24} weight="bold" /> PAUSAR CONTAGEM
+              </ButtonComponent>
+              <ButtonComponent
+                onClick={cancelTimer}
+                className="bg-red-500 hover:bg-red-700 "
+              >
+                <XCircle size={24} weight="bold" /> CANCELAR CONTAGEM
+              </ButtonComponent>
+            </div>
           )}
         </form>
-
-        {!timer ? (
-          <ButtonComponent
-            onClick={startTimer}
-            className="bg-green-500 hover:bg-green-700"
-          >
-            <Play size={24} weight="bold" /> INICIAR CONTAGEM
-          </ButtonComponent>
-        ) : (
-          <div className="flex gap-5">
-            <ButtonComponent
-              onClick={handleTimer}
-              className="bg-orange-500 hover:bg-orange-700"
-            >
-              <Pause size={24} weight="bold" /> PAUSAR CONTAGEM
-            </ButtonComponent>
-            <ButtonComponent
-              onClick={cancelTimer}
-              className="bg-red-500 hover:bg-red-700 "
-            >
-              <XCircle size={24} weight="bold" /> CANCELAR CONTAGEM
-            </ButtonComponent>
-          </div>
-        )}
       </main>
     </div>
   );
