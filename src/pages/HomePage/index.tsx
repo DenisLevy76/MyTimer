@@ -1,3 +1,176 @@
+import Logo from '../../assets/Logo.png';
+import { FormEvent, useEffect, useState } from 'react';
+import { InputComponent } from '../../components/InputComponent';
+import { Pause, Play, XCircle } from 'phosphor-react';
+import { TimeComponent } from '../../components/TimeComponent';
+import { ButtonComponent } from '../../components/ButtonComponent';
+import { secondsToHours } from 'date-fns';
+import { secondsToMinutes } from 'date-fns/esm';
+
 export const HomePage: React.FC = () => {
-  return <div>HomePage</div>;
+  const [timer, setTimer] = useState<number>(0);
+  const [active, setActive] = useState<boolean>(false);
+
+  const [inputValues, setInputValues] = useState<{
+    hour: string;
+    min: string;
+    sec: string;
+  }>({
+    hour: '00',
+    min: '00',
+    sec: '00',
+  });
+
+  const hour = secondsToHours(timer);
+  const min = secondsToMinutes(timer - hour * 3600);
+  const sec = timer % 60;
+
+  const startTimer = () => {
+    if (
+      inputValues.hour != '00' ||
+      inputValues.min != '00' ||
+      inputValues.sec != '00'
+    ) {
+      setTimer(
+        Number(inputValues.hour) * 3600 +
+          Number(inputValues.min) * 60 +
+          Number(inputValues.sec) -
+          1
+      );
+      setActive(true);
+    }
+  };
+
+  let timeout: any;
+
+  const cancelTimer = () => {
+    setTimer(0);
+    clearTimeout(timeout);
+  };
+
+  const handleTimer = () => {
+    setActive(!active);
+    clearTimeout(timeout);
+  };
+
+  let timerTimeout;
+
+  useEffect(() => {
+    if (timer && active) {
+      timeout = setTimeout(() => {
+        timerTimeout = setTimer(timer - 1);
+      }, 1000);
+    } else {
+      setActive(false);
+    }
+  }, [timer, active]);
+
+  return (
+    <div className="flex flex-col items-center justify-center h-screen">
+      <header className="bg-grey-700 w-full flex items-center justify-center p-3 border-b border-grey-500">
+        <img src={Logo} alt="Logo" />
+      </header>
+      <main className="text-white flex flex-1 flex-col items-center justify-center gap-16 text-center">
+        <form
+          onSubmit={(event: FormEvent) => {
+            event.preventDefault();
+            startTimer();
+          }}
+          className="flex gap-5 items-center justify-center"
+        >
+          {timer ? (
+            <TimeComponent time={hour} />
+          ) : (
+            <InputComponent
+              onChange={(event) =>
+                setInputValues({
+                  ...inputValues,
+                  hour: event.target.value.trim(),
+                })
+              }
+              value={inputValues.hour}
+              onBlur={() =>
+                setInputValues({
+                  ...inputValues,
+                  hour: inputValues.hour.padStart(2, '0'),
+                })
+              }
+            />
+          )}
+
+          <p className="flex text-9xl text-green-500 font-bold items-center justify-center -translate-y-3">
+            :
+          </p>
+
+          {timer ? (
+            <TimeComponent time={min} />
+          ) : (
+            <InputComponent
+              onChange={(event) =>
+                setInputValues({
+                  ...inputValues,
+                  min: event.target.value.trim(),
+                })
+              }
+              value={inputValues.min}
+              onBlur={() =>
+                setInputValues({
+                  ...inputValues,
+                  min: inputValues.min.padStart(2, '0'),
+                })
+              }
+            />
+          )}
+
+          <p className="text-9xl text-green-500 font-bold flex items-center justify-center -translate-y-3">
+            :
+          </p>
+
+          {timer ? (
+            <TimeComponent time={sec} />
+          ) : (
+            <InputComponent
+              onChange={(event) =>
+                setInputValues({
+                  ...inputValues,
+                  sec: event.target.value.trim(),
+                })
+              }
+              value={inputValues.sec}
+              onBlur={() =>
+                setInputValues({
+                  ...inputValues,
+                  sec: inputValues.sec.padStart(2, '0'),
+                })
+              }
+            />
+          )}
+        </form>
+
+        {!timer ? (
+          <ButtonComponent
+            onClick={startTimer}
+            className="bg-green-500 hover:bg-green-700"
+          >
+            <Play size={24} weight="bold" /> INICIAR CONTAGEM
+          </ButtonComponent>
+        ) : (
+          <div className="flex gap-5">
+            <ButtonComponent
+              onClick={handleTimer}
+              className="bg-orange-500 hover:bg-orange-700"
+            >
+              <Pause size={24} weight="bold" /> PAUSAR CONTAGEM
+            </ButtonComponent>
+            <ButtonComponent
+              onClick={cancelTimer}
+              className="bg-red-500 hover:bg-red-700 "
+            >
+              <XCircle size={24} weight="bold" /> CANCELAR CONTAGEM
+            </ButtonComponent>
+          </div>
+        )}
+      </main>
+    </div>
+  );
 };
