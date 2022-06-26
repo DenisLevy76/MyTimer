@@ -7,6 +7,8 @@ import { ButtonComponent } from '../../components/ButtonComponent';
 import { secondsToHours } from 'date-fns';
 import { secondsToMinutes } from 'date-fns/esm';
 
+import AlarmSong from '../../assets/harp.wav';
+
 export const HomePage: React.FC = () => {
   const [timer, setTimer] = useState<number>(0);
   const [active, setActive] = useState<boolean>(false);
@@ -62,13 +64,18 @@ export const HomePage: React.FC = () => {
       timeout = setTimeout(() => {
         timerTimeout = setTimer(timer - 1);
       }, 1000);
+
+      if (timer === 1) setTimeout(() => new Audio(AlarmSong).play(), 1000);
     } else {
       setActive(false);
     }
+
+    return () => clearTimeout(timeout);
   }, [timer, active]);
 
   return (
     <div className="flex flex-col items-center justify-center h-screen">
+      <audio src="../../assets/harp.wav" autoPlay></audio>
       <header className="bg-grey-700 w-full flex items-center justify-center p-3 border-b border-grey-500">
         <img src={Logo} alt="Logo" />
       </header>
